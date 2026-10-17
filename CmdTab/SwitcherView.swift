@@ -3,6 +3,8 @@ import SwiftUI
 final class SwitcherModel: ObservableObject {
     @Published var items: [SwitcherItem] = []
     @Published var selection = 0
+    /// Keyed by app pid; empty when resource usage is turned off.
+    @Published var usage: [pid_t: AppUsage] = [:]
     var onClick: ((Int) -> Void)?
 
     func move(_ delta: Int) {
@@ -17,7 +19,7 @@ enum SwitcherLayout {
     static let padding: CGFloat = 8
     static let cornerRadius: CGFloat = 22
     static let rowCornerRadius: CGFloat = cornerRadius - padding
-    static let width: CGFloat = 560
+    static let width: CGFloat = 640
     static let maxVisibleRows = 14
 
     static func height(for count: Int) -> CGFloat {
@@ -48,7 +50,7 @@ private struct GlassSwitcherView: View {
             ScrollView(.vertical, showsIndicators: false) {
                 VStack(spacing: SwitcherLayout.rowSpacing) {
                     ForEach(Array(model.items.enumerated()), id: \.element.id) { index, item in
-                        Row(item: item, selected: index == model.selection)
+                        Row(item: item, usage: model.usage[item.app.processIdentifier], selected: index == model.selection)
                             .background {
                                 if index == model.selection {
                                     SelectionHighlight()
@@ -91,7 +93,7 @@ private struct LegacySwitcherView: View {
                 VStack(spacing: SwitcherLayout.rowSpacing) {
                     ForEach(Array(model.items.enumerated()), id: \.element.id) { index, item in
                         let selected = index == model.selection
-                        Row(item: item, selected: selected)
+                        Row(item: item, usage: model.usage[item.app.processIdentifier], selected: selected)
                             .background(
                                 RoundedRectangle(cornerRadius: 8, style: .continuous)
                                     .fill(selected ? Color.white.opacity(0.18) : Color.white.opacity(0.05))
@@ -113,6 +115,7 @@ private struct LegacySwitcherView: View {
 
 private struct Row: View {
     let item: SwitcherItem
+    let usage: AppUsage?
     let selected: Bool
 
     var body: some View {
@@ -127,6 +130,7 @@ private struct Row: View {
                 .foregroundStyle(titleStyle)
             Spacer(minLength: 8)
             StatusIcons(item: item, selected: selected)
+            if let usage { UsageLabel(usage: usage, selected: selected) }
         }
         .padding(.horizontal, 10)
         .frame(height: SwitcherLayout.rowHeight)
@@ -154,6 +158,32 @@ private struct StatusIcons: View {
         }
         .font(.system(size: 15))
         .foregroundStyle(selected ? AnyShapeStyle(Color.white.opacity(0.8)) : AnyShapeStyle(.secondary))
+    }
+}
+
+private struct UsageLabel: View {
+    let usage: AppUsage
+    let selected: Bool
+
+    private static let memoryFormatter: ByteCountFormatter = {
+        let f = ByteCountFormatter()
+        f.countStyle = .memory
+        f.allowedUnits = [.useMB, .useGB]
+        return f
+    }()
+
+    var body: some View {
+        HStack(spacing: 6) {
+            Text(cpuText).frame(width: 46, alignment: .trailing)
+            Text(Self.memoryFormatter.string(fromByteCount: Int64(usage.memory))).frame(width: 58, alignment: .trailing)
+        }
+        .font(.system(size: 11).monospacedDigit())
+        .lineLimit(1)
+        .foregroundStyle(selected ? AnyShapeStyle(Color.white.opacity(0.8)) : AnyShapeStyle(.secondary))
+    }
+
+    private var cpuText: String {
+        usage.cpu < 10 ? String(format: "%.1f%%", usage.cpu) : String(format: "%.0f%%", usage.cpu)
     }
 }
 

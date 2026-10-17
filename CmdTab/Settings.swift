@@ -10,6 +10,7 @@ final class Settings: ObservableObject {
         static let isEnabled = "isEnabled"
         static let showMenuBarIcon = "showMenuBarIcon"
         static let shiftNavigatesBack = "shiftNavigatesBack"
+        static let showResourceUsage = "showResourceUsage"
     }
 
     /// When off, the native ⌘⇥ is restored and CmdTab stays idle in the background.
@@ -17,13 +18,16 @@ final class Settings: ObservableObject {
     @Published var showMenuBarIcon: Bool { didSet { UserDefaults.standard.set(showMenuBarIcon, forKey: Key.showMenuBarIcon) } }
     /// Pressing ⇧ while the switcher is open selects the previous window; Tab then always moves forward.
     @Published var shiftNavigatesBack: Bool { didSet { UserDefaults.standard.set(shiftNavigatesBack, forKey: Key.shiftNavigatesBack) } }
+    /// Show each app's CPU and memory usage in the switcher rows.
+    @Published var showResourceUsage: Bool { didSet { UserDefaults.standard.set(showResourceUsage, forKey: Key.showResourceUsage) } }
 
     private init() {
         let d = UserDefaults.standard
-        d.register(defaults: [Key.isEnabled: true, Key.showMenuBarIcon: true, Key.shiftNavigatesBack: false])
+        d.register(defaults: [Key.isEnabled: true, Key.showMenuBarIcon: true, Key.shiftNavigatesBack: false, Key.showResourceUsage: true])
         isEnabled = d.bool(forKey: Key.isEnabled)
         showMenuBarIcon = d.bool(forKey: Key.showMenuBarIcon)
         shiftNavigatesBack = d.bool(forKey: Key.shiftNavigatesBack)
+        showResourceUsage = d.bool(forKey: Key.showResourceUsage)
     }
 }
 
@@ -78,6 +82,15 @@ struct SettingsView: View {
                 Text("Navigation")
             } footer: {
                 Text("While holding ⌘, tap ⇧ to move back instead of pressing ⇧⇥. Tab always moves forward.")
+                    .foregroundStyle(.secondary)
+            }
+
+            Section {
+                Toggle("Show CPU and memory usage", isOn: $settings.showResourceUsage)
+            } header: {
+                Text("Appearance")
+            } footer: {
+                Text("Per app, including its helper processes. Sampled every 2 seconds while enabled.")
                     .foregroundStyle(.secondary)
             }
 

@@ -31,6 +31,9 @@ enum Private {
     private static let _axCreateWithRemoteToken = sym(hiServices, "_AXUIElementCreateWithRemoteToken", as: (@convention(c) (CFData) -> Unmanaged<AXUIElement>?).self)
     private static let _getProcessForPID = sym(hiServices, "GetProcessForPID", as: (@convention(c) (pid_t, UnsafeMutablePointer<ProcessSerialNumber>) -> OSStatus).self)
 
+    // libsystem
+    private static let _responsiblePID = sym(UnsafeMutableRawPointer(bitPattern: -2), "responsibility_get_pid_responsible_for_pid", as: (@convention(c) (pid_t) -> pid_t).self) // RTLD_DEFAULT
+
     static var connection: CGSConnectionID { _mainConnectionID?() ?? 0 }
 
     // Symbolic hotkey IDs used by the Dock's app switcher.
@@ -86,6 +89,12 @@ enum Private {
         let mask: Int32 = 0x7 // current | other | user spaces
         guard let arr = _copySpacesForWindows?(connection, mask, [NSNumber(value: wid)] as CFArray)?.takeRetainedValue() as? [NSNumber] else { return [] }
         return arr.map(\.uint64Value)
+    }
+
+    /// The app a process belongs to (e.g. Safari for its WebContent processes); the process itself if unknown.
+    static func responsiblePID(for pid: pid_t) -> pid_t {
+        guard let r = _responsiblePID?(pid), r > 0 else { return pid }
+        return r
     }
 
     /// Brings a specific window of a process to front (yabai/AltTab technique).
