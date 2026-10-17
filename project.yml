@@ -1,12 +1,12 @@
 name: CmdTab
 options:
-  bundleIdPrefix: dev.mani
+  bundleIdPrefix: codes.mani
   deploymentTarget:
-    macOS: "14.0"
+    macOS: '14.0'
 settings:
   base:
-    SWIFT_VERSION: "5.0"
-    MACOSX_DEPLOYMENT_TARGET: "14.0"
+    SWIFT_VERSION: '5.0'
+    MACOSX_DEPLOYMENT_TARGET: '14.0'
 targets:
   CmdTab:
     type: application
@@ -21,9 +21,9 @@ targets:
         NSPrincipalClass: NSApplication
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: dev.mani.CmdTab
+        PRODUCT_BUNDLE_IDENTIFIER: codes.mani.CmdTab
         ENABLE_HARDENED_RUNTIME: NO
-        CODE_SIGN_IDENTITY: "-"
+        CODE_SIGN_IDENTITY: '-'
         CODE_SIGN_STYLE: Manual
         GENERATE_INFOPLIST_FILE: NO
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
