@@ -15,6 +15,9 @@ final class KeyboardInterceptor {
     private var tap: CFMachPort?
     /// Touched only from the tap callback (main run loop); decides synchronously whether to swallow.
     private var isActive = false
+    private var isEnabled = true
+    /// ⇧ state while the switcher is open, so only a fresh ⇧ press navigates back.
+    private var isShiftDown = false
 
     func start() -> Bool {
         let mask = (1 << CGEventType.keyDown.rawValue) | (1 << CGEventType.flagsChanged.rawValue)
@@ -38,21 +41,31 @@ final class KeyboardInterceptor {
         return true
     }
 
-    func stop() {
-        Private.setNativeSwitcherEnabled(true)
-        if let tap { CGEvent.tapEnable(tap: tap, enable: false) }
+    func stop() { setEnabled(false) }
+
+    /// Pauses/resumes interception; while paused the Dock's ⌘⇥ is restored.
+    func setEnabled(_ enabled: Bool) {
+        isEnabled = enabled
+        if !enabled { isActive = false }
+        if let tap { CGEvent.tapEnable(tap: tap, enable: enabled) }
+        Private.setNativeSwitcherEnabled(!enabled)
     }
 
     private func handle(type: CGEventType, event: CGEvent) -> Unmanaged<CGEvent>? {
         switch type {
         case .tapDisabledByTimeout, .tapDisabledByUserInput:
-            if let tap { CGEvent.tapEnable(tap: tap, enable: true) }
+            if isEnabled, let tap { CGEvent.tapEnable(tap: tap, enable: true) }
             return Unmanaged.passUnretained(event)
 
         case .flagsChanged:
-            if isActive && !event.flags.contains(.maskCommand) {
+            guard isActive else { return Unmanaged.passUnretained(event) }
+            let shift = event.flags.contains(.maskShift)
+            defer { isShiftDown = shift }
+            if !event.flags.contains(.maskCommand) {
                 isActive = false
                 send(.commit)
+            } else if shift && !isShiftDown && Settings.shared.shiftNavigatesBack {
+                send(.previous)
             }
             return Unmanaged.passUnretained(event)
 
@@ -66,12 +79,15 @@ final class KeyboardInterceptor {
             if !isActive {
                 guard cmd, !others, key == kVK_Tab else { return Unmanaged.passUnretained(event) }
                 isActive = true
+                isShiftDown = shift
                 send(.open(reverse: shift))
                 return nil
             }
 
             switch key {
-            case kVK_Tab: send(shift ? .previous : .next)
+            case kVK_Tab:
+                // With ⇧-to-go-back, ⇧ was already handled on press; Tab always moves forward.
+                send(shift && !Settings.shared.shiftNavigatesBack ? .previous : .next)
             case kVK_DownArrow, kVK_RightArrow: send(.next)
             case kVK_UpArrow, kVK_LeftArrow: send(.previous)
             case kVK_Escape: isActive = false; send(.cancel)

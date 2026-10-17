@@ -24,6 +24,11 @@ final class SwitcherController {
 
     func stop() { keyboard.stop() }
 
+    func setEnabled(_ enabled: Bool) {
+        if !enabled { close() }
+        keyboard.setEnabled(enabled)
+    }
+
     private func handle(_ cmd: SwitcherCommand) {
         switch cmd {
         case .open(let reverse): open(reverse: reverse)

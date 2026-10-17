@@ -11,7 +11,8 @@ A window switcher for macOS that replaces the native ⌘⇥ with a vertical list
 - Status icons per row: hidden, minimized, fullscreen, and the Space number (when you have more than one Space)
 - Brings the exact window to front, un-minimizing / un-hiding it and switching Spaces as needed
 - Quick ⌘⇥ taps switch instantly without flashing the UI
-- Runs as a menu bar app (no Dock icon)
+- Runs as a menu bar app (no Dock icon); the menu bar icon can be hidden
+- Settings window: enable/disable the switcher, launch at login, hide the menu bar icon, tap ⇧ to go back
 
 ## Shortcuts
 
@@ -19,6 +20,7 @@ A window switcher for macOS that replaces the native ⌘⇥ with a vertical list
 | --- | --- |
 | ⌘⇥ / ⌘⇧⇥ | Open the switcher, select next / previous window |
 | Tab, ⇧Tab, ↑ ↓ | Move selection (while ⌘ is held) |
+| ⇧ | Select previous window, if enabled in Settings (Tab then always moves forward) |
 | Release ⌘, Return, Space, click | Switch to the selected window |
 | Esc | Cancel |
 | W / M / H / Q | Close window / minimize window / hide app / quit app |
@@ -28,6 +30,18 @@ A window switcher for macOS that replaces the native ⌘⇥ with a vertical list
 - macOS 14+
 - Xcode and [XcodeGen](https://github.com/yonaskolb/XcodeGen) (`brew install xcodegen`)
 - **Accessibility** permission (System Settings → Privacy & Security → Accessibility). CmdTab prompts for it on first launch and starts working as soon as it's granted.
+
+## Settings
+
+Open them from the menu bar icon → **Settings…**. If you've hidden the menu bar icon, launch CmdTab again (Finder, Spotlight or `open -a CmdTab`) to bring the settings window up.
+
+| Setting | Effect |
+| --- | --- |
+| Enable window switcher | Pauses CmdTab and restores the native ⌘⇥ while off (also in the menu bar menu) |
+| Launch at login | Registers CmdTab as a login item. macOS may ask you to approve it under System Settings → General → Login Items |
+| Show menu bar icon | Hides or shows the ⌘ icon in the menu bar |
+| Press ⇧ to select the previous window | While ⌘ is held, tapping ⇧ moves the selection back instead of ⇧⇥ |
+| Quit CmdTab | Quits the app |
 
 Quit other ⌘⇥ replacements (e.g. AltTab) first — only one app can own the shortcut.
 
@@ -60,7 +74,7 @@ ditto build/Build/Products/Release/CmdTab.app /Applications/CmdTab.app
 open /Applications/CmdTab.app
 ```
 
-To start it automatically, add it under System Settings → General → Login Items.
+To start it automatically, turn on **Launch at login** in CmdTab's settings.
 
 #### Stable signing (recommended)
 
@@ -106,5 +120,6 @@ CmdTab uses the same private macOS APIs as AltTab (resolved at runtime via `dlsy
 | `PrivateAPIs.swift` | SkyLight / HIServices bindings: window IDs, Space lookup, and focusing a specific window via `_SLPSSetFrontProcessWithOptions` + `SLPSPostEventRecordTo` |
 | `SwitcherView.swift` | SwiftUI list UI |
 | `SwitcherController.swift` | Ties it together: non-activating panel, selection, window actions |
+| `Settings.swift` | Preferences (UserDefaults), launch at login via `SMAppService`, SwiftUI settings window |
 
 The native ⌘⇥ is restored when CmdTab quits, including on Ctrl-C / `kill`. If CmdTab crashes and ⌘⇥ stays dead, launch and quit CmdTab once, or log out and back in.
