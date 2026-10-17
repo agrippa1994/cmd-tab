@@ -1,13 +1,17 @@
 import AppKit
+import Combine
 import SwiftUI
 
 final class SwitcherController {
     private let store = WindowStore()
     private let keyboard = KeyboardInterceptor()
     private let model = SwitcherModel()
+    private let resources = ResourceMonitor()
+    private var subscriptions = Set<AnyCancellable>()
     private lazy var panel = makePanel()
     private var isOpen = false
     private var showWork: DispatchWorkItem?
+    private var isEnabled = true
 
     /// Quick ⌘⇥ taps switch without flashing the UI, like the native switcher.
     private let showDelay: TimeInterval = 0.08
@@ -19,14 +23,32 @@ final class SwitcherController {
             self?.commit()
         }
         keyboard.onCommand = { [weak self] in self?.handle($0) }
+        resources.onUpdate = { [weak self] usage in
+            guard let self, self.isOpen else { return }
+            self.model.usage = usage
+        }
+        Settings.shared.$showResourceUsage.sink { [weak self] show in
+            self?.updateResourceMonitor(showUsage: show)
+        }.store(in: &subscriptions)
         return keyboard.start()
     }
 
-    func stop() { keyboard.stop() }
+    func stop() {
+        keyboard.stop()
+        resources.stop()
+    }
 
     func setEnabled(_ enabled: Bool) {
         if !enabled { close() }
+        isEnabled = enabled
         keyboard.setEnabled(enabled)
+        updateResourceMonitor()
+    }
+
+    /// Samples only while the switcher can actually show the numbers.
+    private func updateResourceMonitor(showUsage: Bool = Settings.shared.showResourceUsage) {
+        if isEnabled && showUsage { resources.start() } else { resources.stop() }
+        model.usage = resources.usage
     }
 
     private func handle(_ cmd: SwitcherCommand) {
@@ -50,6 +72,7 @@ final class SwitcherController {
         guard !isOpen else { return }
         isOpen = true
         model.items = store.snapshot()
+        model.usage = resources.usage
         model.selection = 0
         model.move(reverse ? -1 : 1)
 

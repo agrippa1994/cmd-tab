@@ -9,6 +9,7 @@ A window switcher for macOS that replaces the native ⌘⇥ with a vertical list
 - Lists every window of every regular app, including windows on other Spaces, minimized windows and hidden apps
 - Most-recently-used order; minimized/hidden windows at the bottom, windowless apps last
 - Status icons per row: hidden, minimized, fullscreen, and the Space number (when you have more than one Space)
+- CPU and memory usage per row, summed over the app and its helper processes (like Activity Monitor's "% CPU" and "Memory")
 - Brings the exact window to front, un-minimizing / un-hiding it and switching Spaces as needed
 - Quick ⌘⇥ taps switch instantly without flashing the UI
 - Runs as a menu bar app (no Dock icon); the menu bar icon can be hidden
@@ -41,6 +42,7 @@ Open them from the menu bar icon → **Settings…**. If you've hidden the menu 
 | Launch at login | Registers CmdTab as a login item. macOS may ask you to approve it under System Settings → General → Login Items |
 | Show menu bar icon | Hides or shows the ⌘ icon in the menu bar |
 | Press ⇧ to select the previous window | While ⌘ is held, tapping ⇧ moves the selection back instead of ⇧⇥ |
+| Show CPU and memory usage | Shows each app's CPU and memory in the list, sampled every 2 seconds while on |
 | Quit CmdTab | Quits the app |
 
 Quit other ⌘⇥ replacements (e.g. AltTab) first — only one app can own the shortcut.
