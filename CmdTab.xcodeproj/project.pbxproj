@@ -13,6 +13,7 @@
 		AA259AC59556409143AD31DC /* PrivateAPIs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8051EFCC608C1B8D0ED95DD9 /* PrivateAPIs.swift */; };
 		D0B0485E16AE78D683D0466B /* KeyboardInterceptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B07E2D3766435DF2220873CF /* KeyboardInterceptor.swift */; };
 		DAD71DD75221256E8C405FB2 /* SwitcherView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1626238C4B5656FF0AB0FD9E /* SwitcherView.swift */; };
+		FA817261093877588AFE6A62 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B6EF9AE6F643F16E29D659AA /* Assets.xcassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -23,6 +24,7 @@
 		967C8355EE6296095D889A58 /* WindowStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowStore.swift; sourceTree = "<group>"; };
 		ACD2E72BE2A7B9D03661DE38 /* SwitcherController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwitcherController.swift; sourceTree = "<group>"; };
 		B07E2D3766435DF2220873CF /* KeyboardInterceptor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardInterceptor.swift; sourceTree = "<group>"; };
+		B6EF9AE6F643F16E29D659AA /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		F141FA6F933C6DD36CFC5812 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -38,6 +40,7 @@
 		69CD33E6789F2C9A9278AC78 /* CmdTab */ = {
 			isa = PBXGroup;
 			children = (
+				B6EF9AE6F643F16E29D659AA /* Assets.xcassets */,
 				F141FA6F933C6DD36CFC5812 /* Info.plist */,
 				B07E2D3766435DF2220873CF /* KeyboardInterceptor.swift */,
 				5C8B14639E2E6BD6C4A28BBA /* main.swift */,
@@ -65,6 +68,7 @@
 			buildConfigurationList = B3B2201E91763FAF16423BD0 /* Build configuration list for PBXNativeTarget "CmdTab" */;
 			buildPhases = (
 				A15DF99C967E56B9142BA3D6 /* Sources */,
+				2CE85AF663FE797220A929BA /* Resources */,
 			);
 			buildRules = (
 			);
@@ -109,6 +113,17 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		2CE85AF663FE797220A929BA /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FA817261093877588AFE6A62 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		A15DF99C967E56B9142BA3D6 /* Sources */ = {
